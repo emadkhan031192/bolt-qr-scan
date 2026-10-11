@@ -2,9 +2,9 @@ name: Build APK
 
 on:
   push:
+    tags:
+      - 'v*'
   workflow_dispatch:
-  tags:
-    - 'v*'
 
 jobs:
   build:
