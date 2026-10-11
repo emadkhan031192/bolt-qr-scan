@@ -35,7 +35,7 @@ dependencies:
 
   # Device
   vibration: 3.2.1
-  permission_handler: 13.0.2
+  permission_handler: 13.0.0
   image_picker: 1.2.4
   gal: 2.3.3
   file_picker: 13.1.0
