@@ -120,7 +120,7 @@ class BoltActions {
           if (end != null) 'endTime': end.millisecondsSinceEpoch,
         },
       );
-      if (!await intent.canResolveActivity()) return ActionResult.notSupported;
+      if (await intent.canResolveActivity() != true) return ActionResult.notSupported;
       await intent.launch();
       return ActionResult.ok;
     } catch (_) {
@@ -145,7 +145,7 @@ class BoltActions {
           'company': org,
         },
       );
-      if (!await intent.canResolveActivity()) return ActionResult.notSupported;
+      if (await intent.canResolveActivity() != true) return ActionResult.notSupported;
       await intent.launch();
       return ActionResult.ok;
     } catch (_) {
@@ -162,7 +162,7 @@ class BoltActions {
       const AndroidIntent intent = AndroidIntent(
         action: 'android.settings.WIFI_SETTINGS',
       );
-      if (!await intent.canResolveActivity()) return ActionResult.notSupported;
+      if (await intent.canResolveActivity() != true) return ActionResult.notSupported;
       await intent.launch();
       return ActionResult.ok;
     } catch (_) {

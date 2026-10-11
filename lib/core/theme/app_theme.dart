@@ -51,14 +51,15 @@ TextTheme _textTheme(ColorScheme scheme) {
   );
 }
 
-ButtonStyle _pillButtonStyle(ColorScheme scheme) => ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll<Size>(Size(48, 52)),
+ButtonStyle _pillButtonStyle(ColorScheme scheme) => const ButtonStyle(
+      minimumSize: WidgetStatePropertyAll<Size>(Size(48, 52)),
       tapTargetSize: MaterialTapTargetSize.padded,
       shape: WidgetStatePropertyAll<OutlinedBorder>(
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(28))),
       ),
       textStyle: WidgetStatePropertyAll<TextStyle>(
-        const TextStyle(
+        TextStyle(
           fontFamily: _uiFont,
           fontWeight: FontWeight.w700,
           fontSize: 16,
@@ -118,12 +119,12 @@ ThemeData _baseTheme(ColorScheme scheme, {required bool dark}) {
         foregroundColor: WidgetStatePropertyAll<Color>(scheme.onSurface),
       ),
     ),
-    textButtonTheme: TextButtonThemeData(
+    textButtonTheme: const TextButtonThemeData(
       style: ButtonStyle(
-        minimumSize: const WidgetStatePropertyAll<Size>(Size(48, 48)),
+        minimumSize: WidgetStatePropertyAll<Size>(Size(48, 48)),
         tapTargetSize: MaterialTapTargetSize.padded,
         textStyle: WidgetStatePropertyAll<TextStyle>(
-          const TextStyle(
+          TextStyle(
             fontFamily: _uiFont,
             fontWeight: FontWeight.w700,
             fontSize: 15,

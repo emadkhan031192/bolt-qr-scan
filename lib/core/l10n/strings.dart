@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/settings/settings_model.dart';
 
 /// Currently active strings, resolved from the language setting.
-final appStringsProvider = Provider<AppStrings>((Ref<AppStrings> ref) {
+final appStringsProvider = Provider<AppStrings>((Ref ref) {
   final String lang = ref.watch(settingsProvider.select((SettingsModel s) => s.language));
   switch (lang) {
     case 'ur':
@@ -18,7 +18,7 @@ final appStringsProvider = Provider<AppStrings>((Ref<AppStrings> ref) {
 });
 
 /// True when the active language is RTL (Urdu, Pashto).
-final isRtlProvider = Provider<bool>((Ref<bool> ref) {
+final isRtlProvider = Provider<bool>((Ref ref) {
   final String lang = ref.watch(settingsProvider.select((SettingsModel s) => s.language));
   return lang == 'ur' || lang == 'ps';
 });

@@ -12,6 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  path: 1.9.1
 
   # State
   flutter_riverpod: 3.4.3
