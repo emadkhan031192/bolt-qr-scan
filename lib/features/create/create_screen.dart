@@ -6,9 +6,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:boltscan/widgets/empty_state.dart';
+import 'package:boltscan/widgets/design_chip.dart';
 import 'package:boltscan/widgets/pill_button.dart';
-import 'package:boltscan/widgets/segmented_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
@@ -369,6 +368,24 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+          child: Text(
+            s.createTitle,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+          child: Text(
+            s.createSubtitle,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.muted,
+                ),
+          ),
+        ),
         _TypeChips(
           current: _type,
           onSelect: _setType,
@@ -381,7 +398,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           payload: payload,
           color: qrColor,
           ec: ec,
-          strings: s,
         ),
         if (qrColorWarns(qrColor)) ...<Widget>[
           const SizedBox(height: 8),
@@ -393,45 +409,27 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           strings: s,
           onSelect: (String key) => setState(() => _colorKey = key),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: <Widget>[
-            Expanded(child: Text(s.defaultEcLevel)),
-            BoltSegmentedControl<String>(
-              options: const <SegmentedOption<String>>[
-                SegmentedOption<String>(value: 'L', label: 'L'),
-                SegmentedOption<String>(value: 'M', label: 'M'),
-                SegmentedOption<String>(value: 'Q', label: 'Q'),
-                SegmentedOption<String>(value: 'H', label: 'H'),
-              ],
-              value: settings.ecLevel,
-              onChanged: (String v) {
-                ref.read(settingsProvider.notifier).setEcLevel(v);
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Row(
           children: <Widget>[
             Expanded(
+              flex: 3,
               child: BoltPillButton(
-                label: s.share,
-                icon: Icons.share,
-                primary: false,
+                label: s.saveImage,
                 onPressed: payload.isEmpty
                     ? null
-                    : () => _shareImage(payload, qrColor, ec),
+                    : () => _saveImage(payload, qrColor, ec),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
+              flex: 2,
               child: BoltPillButton(
-                label: s.saveImage,
-                icon: Icons.download,
+                label: s.share,
+                primary: false,
                 onPressed: payload.isEmpty
                     ? null
-                    : () => _saveImage(payload, qrColor, ec),
+                    : () => _shareImage(payload, qrColor, ec),
               ),
             ),
           ],
@@ -454,7 +452,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         final String t = _url.text.trim();
         return _field(
           controller: _url,
-          label: s.labelUrl,
+          label: s.labelWebAddress,
           keyboard: TextInputType.url,
           error: t.isEmpty
               ? s.fieldRequired
@@ -633,15 +631,31 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     int maxLines = 1,
     bool obscure = false,
   }) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        errorText: error,
-      ),
-      keyboardType: keyboard,
-      maxLines: maxLines,
-      obscureText: obscure,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            label.toUpperCase(),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: AppColors.muted,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.1,
+                ),
+          ),
+        ),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: label,
+            errorText: error,
+          ),
+          keyboardType: keyboard,
+          maxLines: maxLines,
+          obscureText: obscure,
+        ),
+      ],
     );
   }
 }
@@ -666,28 +680,26 @@ class _TypeChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<(_CreateType, IconData, String)> types =
-        <(_CreateType, IconData, String)>[
-      (_CreateType.text, Icons.text_fields, strings.typeText),
-      (_CreateType.link, Icons.link, strings.typeLink),
-      (_CreateType.wifi, Icons.wifi, strings.typeWifi),
-      (_CreateType.contact, Icons.person, strings.typeContact),
-      (_CreateType.email, Icons.email, strings.typeEmail),
-      (_CreateType.phone, Icons.phone, strings.typePhone),
-      (_CreateType.sms, Icons.sms, strings.typeSms),
-      (_CreateType.location, Icons.place, strings.typeLocation),
+    final List<(_CreateType, String)> types =
+        <(_CreateType, String)>[
+      (_CreateType.text, strings.typeText),
+      (_CreateType.link, strings.typeLink),
+      (_CreateType.wifi, strings.typeWifi),
+      (_CreateType.contact, strings.typeContact),
+      (_CreateType.email, strings.typeEmail),
+      (_CreateType.phone, strings.typePhone),
+      (_CreateType.sms, strings.typeSms),
+      (_CreateType.location, strings.typeLocation),
     ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: <Widget>[
-          for (final (_CreateType, IconData, String) t in types) ...<Widget>[
-            ChoiceChip(
-              label: Text(t.$3),
-              avatar: Icon(t.$2, size: 18),
+          for (final (_CreateType, String) t in types) ...<Widget>[
+            DesignChip(
+              label: t.$2,
               selected: current == t.$1,
-              selectedColor: AppColors.voltYellow,
-              onSelected: (_) => onSelect(t.$1),
+              onTap: () => onSelect(t.$1),
             ),
             const SizedBox(width: 8),
           ],
@@ -704,7 +716,6 @@ class _PreviewCard extends StatelessWidget {
     required this.payload,
     required this.color,
     required this.ec,
-    required this.strings,
   });
 
   /// Current QR payload; empty means "show placeholder".
@@ -716,44 +727,35 @@ class _PreviewCard extends StatelessWidget {
   /// Error-correction level (qr_flutter int constant).
   final int ec;
 
-  /// Localized strings.
-  final AppStrings strings;
-
   @override
   Widget build(BuildContext context) {
+    final bool dark = Theme.of(context).brightness == Brightness.dark;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: <Widget>[
-            Text(
-              strings.qrPreviewTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            if (payload.isEmpty)
-              EmptyState(
-                icon: Icons.qr_code_2,
-                title: strings.qrPreviewTitle,
-                body: strings.labelContent,
-              )
-            else
-              QrImageView(
-                data: payload,
-                version: QrVersions.auto,
-                errorCorrectionLevel: ec,
-                size: 220,
-                eyeStyle: QrEyeStyle(
-                  eyeShape: QrEyeShape.square,
-                  color: color,
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: payload.isEmpty
+              ? Icon(
+                  Icons.qr_code_2,
+                  size: 120,
+                  color: (dark ? Colors.white : AppColors.ink)
+                      .withValues(alpha: 0.18),
+                )
+              : QrImageView(
+                  data: payload,
+                  version: QrVersions.auto,
+                  errorCorrectionLevel: ec,
+                  size: 260,
+                  eyeStyle: QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: color,
+                  ),
+                  dataModuleStyle: QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: color,
+                  ),
+                  backgroundColor: Colors.white,
                 ),
-                dataModuleStyle: QrDataModuleStyle(
-                  dataModuleShape: QrDataModuleShape.square,
-                  color: color,
-                ),
-                backgroundColor: Colors.white,
-              ),
-          ],
         ),
       ),
     );
@@ -808,6 +810,7 @@ class _ColorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final List<(String, Color, String)> colors = <(String, Color, String)>[
       ('ink', AppColors.ink, strings.colorInk),
       ('blue', AppColors.electricBlue, strings.colorBlue),
@@ -815,10 +818,19 @@ class _ColorRow extends StatelessWidget {
     ];
     return Row(
       children: <Widget>[
-        Expanded(child: Text(strings.defaultQrColor)),
+        Expanded(
+          child: Text(
+            strings.labelColor.toUpperCase(),
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: AppColors.muted,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
         for (final (String, Color, String) c in colors)
           Padding(
-            padding: const EdgeInsets.only(left: 8),
+            padding: const EdgeInsets.only(left: 12),
             child: Semantics(
               button: true,
               selected: selectedKey == c.$1,
@@ -835,13 +847,10 @@ class _ColorRow extends StatelessWidget {
                     border: Border.all(
                       color: selectedKey == c.$1
                           ? AppColors.voltYellow
-                          : Theme.of(context).colorScheme.outline,
-                      width: selectedKey == c.$1 ? 3 : 1,
+                          : AppColors.line.withValues(alpha: 0.9),
+                      width: selectedKey == c.$1 ? 4 : 1,
                     ),
                   ),
-                  child: selectedKey == c.$1
-                      ? const Icon(Icons.check, color: Colors.white, size: 20)
-                      : null,
                 ),
               ),
             ),

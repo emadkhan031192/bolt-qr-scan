@@ -1,6 +1,7 @@
 // History tab: searchable, filterable, day-grouped scan list with
 // swipe-to-delete (undo), multi-select actions, CSV/JSON export and JSON
 // backup import.
+import 'package:boltscan/widgets/design_chip.dart';
 import 'package:boltscan/widgets/empty_state.dart';
 import 'package:boltscan/widgets/type_badge.dart';
 import 'package:file_picker/file_picker.dart';
@@ -66,64 +67,106 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       orElse: () => 0,
     );
     return Scaffold(
-      appBar: _selecting ? _selectAppBar(s) : _mainAppBar(s, count),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: s.searchHint,
-                prefixIcon: const Icon(Icons.search),
+      appBar: _selecting ? _selectAppBar(s) : null,
+      body: SafeArea(
+        child: Column(
+          children: <Widget>[
+            _Header(count: count, onMore: _showOptionsSheet),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: s.searchHint,
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(28),
+                    borderSide: BorderSide(
+                      color: AppColors.line.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(28),
+                    borderSide: BorderSide(
+                      color: AppColors.line.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(28)),
+                    borderSide: BorderSide(
+                      color: AppColors.electricBlue,
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                ),
+                onChanged: (String v) =>
+                    ref.read(historyQueryProvider.notifier).setSearch(v),
               ),
-              onChanged: (String v) =>
-                  ref.read(historyQueryProvider.notifier).setSearch(v),
             ),
-          ),
-          _FilterChips(query: query),
-          const SizedBox(height: 4),
-          Expanded(
-            child: list.when(
-              data: (List<HistoryEntry> entries) =>
-                  _buildList(s, entries, query),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (_, _) => Center(child: Text(s.error)),
+            _FilterChips(query: query),
+            const SizedBox(height: 4),
+            Expanded(
+              child: list.when(
+                data: (List<HistoryEntry> entries) =>
+                    _buildList(s, entries, query),
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
+                error: (_, _) => Center(child: Text(s.error)),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // ------------------------------------------------------------ app bars
+  // ------------------------------------------------------------ header
 
-  AppBar _mainAppBar(AppStrings s, int count) {
-    return AppBar(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(s.historyTitle),
-          Text(
-            s.historySubtitle(count),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
+  /// Big "History" title, subtitle and the circular overflow button,
+  /// matching the design (no Material AppBar on this screen).
+  Future<void> _showOptionsSheet() async {
+    final AppStrings s = ref.read(appStringsProvider);
+    final String? value = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      actions: <Widget>[
-        PopupMenuButton<String>(
-          onSelected: _onMenu,
-          itemBuilder: (BuildContext c) => <PopupMenuEntry<String>>[
-            PopupMenuItem<String>(value: 'csv', child: Text(s.exportCsv)),
-            PopupMenuItem<String>(value: 'json', child: Text(s.exportJson)),
-            PopupMenuItem<String>(
-                value: 'import', child: Text(s.importBackup)),
-            PopupMenuItem<String>(value: 'clear', child: Text(s.clearAll)),
+      builder: (BuildContext c) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined),
+              title: Text(s.exportCsv),
+              onTap: () => Navigator.of(c).pop('csv'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.data_object_outlined),
+              title: Text(s.exportJson),
+              onTap: () => Navigator.of(c).pop('json'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.upload_file_outlined),
+              title: Text(s.importBackup),
+              onTap: () => Navigator.of(c).pop('import'),
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.delete_outline, color: AppColors.danger),
+              title: Text(
+                s.clearAll,
+                style: const TextStyle(color: AppColors.danger),
+              ),
+              onTap: () => Navigator.of(c).pop('clear'),
+            ),
+            const SizedBox(height: 8),
           ],
         ),
-      ],
+      ),
     );
+    if (value != null && mounted) _onMenu(value);
   }
 
   AppBar _selectAppBar(AppStrings s) {
@@ -311,10 +354,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         final _ListItem item = items[i];
         if (item is _HeaderItem) {
           return Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 6),
+            padding: const EdgeInsets.only(top: 14, bottom: 8, left: 4),
             child: Text(
-              item.label,
-              style: Theme.of(c).textTheme.titleSmall,
+              item.label.toUpperCase(),
+              style: Theme.of(c).textTheme.labelLarge?.copyWith(
+                    color: AppColors.muted,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                  ),
             ),
           );
         }
@@ -368,6 +415,68 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 }
 
+/// Big title header with subtitle and circular overflow button.
+class _Header extends ConsumerWidget {
+  const _Header({required this.count, required this.onMore});
+
+  final int count;
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppStrings s = ref.watch(appStringsProvider);
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 16, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  s.historyTitle,
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  s.historySubtitle(count),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Semantics(
+            button: true,
+            label: s.exportCsv,
+            child: InkWell(
+              onTap: onMore,
+              borderRadius: BorderRadius.circular(28),
+              child: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.cardColor,
+                  border: Border.all(
+                      color: AppColors.line.withValues(alpha: 0.9)),
+                ),
+                child: const Icon(Icons.more_vert),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Filter chips driving [historyQueryProvider].
 class _FilterChips extends ConsumerWidget {
   const _FilterChips({required this.query});
@@ -393,10 +502,10 @@ class _FilterChips extends ConsumerWidget {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (BuildContext c, int i) {
           final (String value, String label) = chips[i];
-          return ChoiceChip(
-            label: Text(label),
+          return DesignChip(
+            label: label,
             selected: query.kind == value,
-            onSelected: (_) =>
+            onTap: () =>
                 ref.read(historyQueryProvider.notifier).setKind(value),
           );
         },
@@ -431,69 +540,76 @@ class _HistoryRow extends ConsumerWidget {
         (entry.title != null && entry.title!.isNotEmpty)
             ? entry.title!
             : entry.rawValue;
-    final Widget content = InkWell(
-      onTap: onTap,
-      onLongPress: onToggleSelect,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        child: Row(
-          children: <Widget>[
-            if (selecting)
-              Checkbox(
-                value: selected,
-                onChanged: (_) => onToggleSelect(),
-              )
-            else ...<Widget>[
-              TypeBadge(kind: entry.kind, source: entry.source),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    preview,
-                    style: AppText.mono(context, fontSize: 14),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat.jm(locale).format(entry.scannedAt),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            if (!selecting && entry.favorite)
-              const Padding(
-                padding: EdgeInsets.only(left: 8),
-                child: Icon(
-                  Icons.star,
-                  size: 20,
-                  color: AppColors.voltYellow,
+    final Widget content = Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onToggleSelect,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+          child: Row(
+            children: <Widget>[
+              if (selecting)
+                Checkbox(
+                  value: selected,
+                  onChanged: (_) => onToggleSelect(),
+                )
+              else ...<Widget>[
+                TypeBadge(kind: entry.kind, source: entry.source),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      preview,
+                      style: AppText.mono(context, fontSize: 14),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat.jm(locale).format(entry.scannedAt),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
-          ],
+              if (!selecting && entry.favorite)
+                const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Icon(
+                    Icons.star,
+                    size: 22,
+                    color: AppColors.voltYellow,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
     if (entry.id == null || selecting) return content;
-    return Dismissible(
-      key: ValueKey<int>(entry.id!),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: AppColors.danger,
-          borderRadius: BorderRadius.circular(16),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 0),
+      child: Dismissible(
+        key: ValueKey<int>(entry.id!),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.danger,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Icon(Icons.delete_outline, color: Colors.white),
         ),
-        child: const Icon(Icons.delete_outline, color: Colors.white),
+        onDismissed: (_) => onDelete(entry),
+        child: content,
       ),
-      onDismissed: (_) => onDelete(entry),
-      child: content,
     );
   }
 }

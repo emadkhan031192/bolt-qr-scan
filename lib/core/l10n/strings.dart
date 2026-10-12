@@ -151,6 +151,8 @@ abstract class AppStrings {
 
   // Create
   String get createTab;
+  String get createTitle;
+  String get createSubtitle;
   String get typeText;
   String get typeLink;
   String get typeWifi;
@@ -161,6 +163,7 @@ abstract class AppStrings {
   String get typeLocation;
   String get labelContent;
   String get labelUrl;
+  String get labelWebAddress;
   String get labelSsid;
   String get labelPassword;
   String get labelSecurity;
@@ -177,6 +180,7 @@ abstract class AppStrings {
   String get labelLatitude;
   String get labelLongitude;
   String get qrPreviewTitle;
+  String get labelColor;
   String get colorInk;
   String get colorBlue;
   String get colorGreen;
@@ -329,7 +333,7 @@ class EnStrings extends AppStrings {
   @override String get historyTitle => 'History';
   @override String historySubtitle(int n) =>
       '$n scans, stored only on this phone';
-  @override String get searchHint => 'Search scans';
+  @override String get searchHint => 'Search your scans';
   @override String get filterAll => 'All';
   @override String get filterFavorites => 'Favorites';
   @override String get filterLinks => 'Links';
@@ -357,6 +361,8 @@ class EnStrings extends AppStrings {
   @override String get deleteSelected => 'Delete selected';
 
   @override String get createTab => 'Create';
+  @override String get createTitle => 'Create';
+  @override String get createSubtitle => 'The code updates as you type';
   @override String get typeText => 'Text';
   @override String get typeLink => 'Link';
   @override String get typeWifi => 'Wi-Fi';
@@ -367,6 +373,7 @@ class EnStrings extends AppStrings {
   @override String get typeLocation => 'Location';
   @override String get labelContent => 'Content';
   @override String get labelUrl => 'Link (https://…)';
+  @override String get labelWebAddress => 'Web address';
   @override String get labelSsid => 'Network name';
   @override String get labelPassword => 'Password';
   @override String get labelSecurity => 'Security';
@@ -383,6 +390,7 @@ class EnStrings extends AppStrings {
   @override String get labelLatitude => 'Latitude';
   @override String get labelLongitude => 'Longitude';
   @override String get qrPreviewTitle => 'Preview';
+  @override String get labelColor => 'Color';
   @override String get colorInk => 'Ink';
   @override String get colorBlue => 'Blue';
   @override String get colorGreen => 'Green';
@@ -534,7 +542,7 @@ class UrStrings extends AppStrings {
 
   @override String get historyTitle => 'ہسٹری';
   @override String historySubtitle(int n) => '$n اسکین، صرف اس فون میں محفوظ';
-  @override String get searchHint => 'اسکین تلاش کریں';
+  @override String get searchHint => 'اپنے اسکین تلاش کریں';
   @override String get filterAll => 'تمام';
   @override String get filterFavorites => 'پسندیدہ';
   @override String get filterLinks => 'لنکس';
@@ -562,6 +570,8 @@ class UrStrings extends AppStrings {
   @override String get deleteSelected => 'منتخب حذف کریں';
 
   @override String get createTab => 'بنائیں';
+  @override String get createTitle => 'بنائیں';
+  @override String get createSubtitle => 'آپ کے لکھتے ہی کوڈ اپ ڈیٹ ہو جاتا ہے';
   @override String get typeText => 'متن';
   @override String get typeLink => 'لنک';
   @override String get typeWifi => 'وائی فائی';
@@ -572,6 +582,7 @@ class UrStrings extends AppStrings {
   @override String get typeLocation => 'مقام';
   @override String get labelContent => 'مواد';
   @override String get labelUrl => 'لنک (https://…)';
+  @override String get labelWebAddress => 'ویب ایڈریس';
   @override String get labelSsid => 'نیٹ ورک کا نام';
   @override String get labelPassword => 'پاس ورڈ';
   @override String get labelSecurity => 'سیکیورٹی';
@@ -588,6 +599,7 @@ class UrStrings extends AppStrings {
   @override String get labelLatitude => 'عرض بلد';
   @override String get labelLongitude => 'طول بلد';
   @override String get qrPreviewTitle => 'پیش نظارہ';
+  @override String get labelColor => 'رنگ';
   @override String get colorInk => 'سیاہی';
   @override String get colorBlue => 'نیلا';
   @override String get colorGreen => 'سبز';
@@ -739,7 +751,7 @@ class PsStrings extends AppStrings {
 
   @override String get historyTitle => 'تاریخچه';
   @override String historySubtitle(int n) => '$n سکین، یوازې په دې ټېلېفون کې خوندي';
-  @override String get searchHint => 'سکینونه ولټوئ';
+  @override String get searchHint => 'خپل سکینونه ولټوئ';
   @override String get filterAll => 'ټول';
   @override String get filterFavorites => 'خوښ';
   @override String get filterLinks => 'تړوني';
@@ -767,6 +779,8 @@ class PsStrings extends AppStrings {
   @override String get deleteSelected => 'ټاکل شوي ړنګ کړئ';
 
   @override String get createTab => 'جوړ کړئ';
+  @override String get createTitle => 'جوړ کړئ';
+  @override String get createSubtitle => 'کوډ ستاسو د لیکلو سره سم تازه کېږي';
   @override String get typeText => 'متن';
   @override String get typeLink => 'تړونی';
   @override String get typeWifi => 'وای فای';
@@ -777,6 +791,7 @@ class PsStrings extends AppStrings {
   @override String get typeLocation => 'ځای';
   @override String get labelContent => 'منځپانګه';
   @override String get labelUrl => 'تړونی (https://…)';
+  @override String get labelWebAddress => 'وېب پته';
   @override String get labelSsid => 'د شبکې نوم';
   @override String get labelPassword => 'پټنوم';
   @override String get labelSecurity => 'امنیت';
@@ -793,6 +808,7 @@ class PsStrings extends AppStrings {
   @override String get labelLatitude => 'عرض البلد';
   @override String get labelLongitude => 'طول البلد';
   @override String get qrPreviewTitle => 'مخکتنه';
+  @override String get labelColor => 'رنګ';
   @override String get colorInk => 'رنګ';
   @override String get colorBlue => 'آبي';
   @override String get colorGreen => 'شنه';
